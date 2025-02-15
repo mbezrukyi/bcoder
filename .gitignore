@@ -1,0 +1,9 @@
+# Python environment
+env/
+
+# Cache
+__pycache__/
+*.torrent
+
+# Build
+*.egg-info/
