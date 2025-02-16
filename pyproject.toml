@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bencoder"
+name = "bcoder"
 version = "1.0"
 authors = [
     {name = "Mykola Bezrukyi", email = "kolya.bezrukiy.03@gmail.com"},

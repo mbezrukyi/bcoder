@@ -1,4 +1,4 @@
-# bencoder
+# bcoder
 
 ### About
 
@@ -17,7 +17,7 @@ There are __2__ types of classes:
 
 Example of `BDecoder` usage:
 ```python
-from bencoder import BDecoder
+from bcoder import BDecoder
 
 decoder = BDecoder()
 
@@ -29,7 +29,7 @@ decoded = decoder.decode(data)
 
 Example of `BEncoder` usage:
 ```python
-from bencoder import BEncoder
+from bcoder import BEncoder
 
 encoder = BEncoder()
 
