@@ -1,2 +1,2 @@
-class DecoderError(ValueError):
+class DecodeError(ValueError):
     pass
