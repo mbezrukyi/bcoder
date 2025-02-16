@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bencoder"
+version = "1.0"
+authors = [
+    {name = "Mykola Bezrukyi", email = "kolya.bezrukiy.03@gmail.com"},
+]
+description = "Tool to decode and encode .torrent files"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {file = "LICENSE"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
