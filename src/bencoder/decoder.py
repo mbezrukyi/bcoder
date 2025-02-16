@@ -23,8 +23,8 @@ class DecodeType(Enum):
 
 
 class BDecoder:
-    def __init__(self, data: bytes):
-        self._data = data
+    def __init__(self):
+        self._data = None
         self._i = None
 
         self._decoders = {
@@ -34,7 +34,8 @@ class BDecoder:
             DecodeType.INTEGER: self._decode_int,
         }
 
-    def decode(self) -> BDecodeType:
+    def decode(self, data: bytes) -> BDecodeType:
+        self._data = data
         self._i = 0
 
         return self._get_decoder()()

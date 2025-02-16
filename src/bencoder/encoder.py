@@ -21,8 +21,7 @@ class EncodeType(Enum):
 
 
 class BEncoder:
-    def __init__(self, data: BEncodeType, encoding: str = "utf-8"):
-        self._data = data
+    def __init__(self, encoding: str = "utf-8"):
         self._encoding = encoding
 
         self._encoders = {
@@ -32,8 +31,8 @@ class BEncoder:
             EncodeType.INTEGER: self._encode_int,
         }
 
-    def encode(self) -> bytes:
-        return self._get_encoder(self._data)(self._data)
+    def encode(self, data: BEncodeType) -> bytes:
+        return self._get_encoder(data)(data)
 
     def _get_encoder(self, value: BEncodeType) -> Callable[["BEncoder", BEncodeType], bytes]:
         return self._encoders[EncodeType.from_value(value)]
