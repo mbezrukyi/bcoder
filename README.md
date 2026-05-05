@@ -35,16 +35,16 @@ encoder = BEncoder()
 
 data = {
     b"announce-list": [
-        ["udp:..."],
-        ["udp:..."],
+        [b"udp:..."],
+        [b"udp:..."],
     ],
-    "info": {
-        "piece": b"xfsasf",
-        "piece length": 123,
+    b"info": {
+        b"piece": b"xfsasf",
+        b"piece length": 123,
     },
 }
 
 encoded = encoder.encode(data)
 ```
 
-__NOTE__: `BEncoder` can handle mixed types of Python strings - `bytes` and `str`.
+__NOTE__: `BEncoder` is spec-strict (BEP 3). Only `bytes`, `int`, `list`, and `dict` with `bytes` keys are accepted. Pass `str` through `.encode("utf-8")` yourself if you need to encode text.

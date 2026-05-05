@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Callable, Union
+from typing import Union
 
 from .errors import DecodeError
 
@@ -24,9 +24,6 @@ class DecodeType(Enum):
 
 class BDecoder:
     def __init__(self):
-        self._data = None
-        self._i = None
-
         self._decoders = {
             DecodeType.DICTIONARY: self._decode_dict,
             DecodeType.STRING: self._decode_str,
@@ -35,64 +32,55 @@ class BDecoder:
         }
 
     def decode(self, data: bytes) -> BDecodeType:
-        self._data = data
-        self._i = 0
+        value, _ = self._decode(data, 0)
 
-        return self._get_decoder()()
+        return value
 
-    def _get_decoder(self) -> Callable[["BDecoder"], BDecodeType]:
-        return self._decoders[DecodeType.from_code(self._data[self._i])]
+    def _decode(self, data: bytes, i: int) -> tuple[BDecodeType, int]:
+        return self._decoders[DecodeType.from_code(data[i])](data, i)
 
-    def _decode_dict(self) -> dict[bytes, BDecodeType]:
+    def _decode_dict(self, data: bytes, i: int) -> tuple[dict[bytes, BDecodeType], int]:
         result = {}
 
-        self._i += 1
+        i += 1
 
-        while self._data[self._i] != ord("e"):
-            key = self._decode_str()
-            result[key] = self._get_decoder()()
+        while data[i] != ord("e"):
+            key, i = self._decode_str(data, i)
+            result[key], i = self._decode(data, i)
 
-        self._i += 1
+        return result, i + 1
 
-        return result
+    def _decode_str(self, data: bytes, i: int) -> tuple[bytes, int]:
+        if data[i] == ord("0") and data[i + 1] != ord(":"):
+            raise DecodeError(f"Invalid leading '0' value for str in {i} position")
 
-    def _decode_str(self) -> bytes:
-        if self._data[self._i] == ord("0") and self._data[self._i + 1] != ord(":"):
-            raise DecodeError(f"Invalid leading '0' value for str in {self._i} position")
-
-        colon = self._data.index(b":", self._i)
-        length = int(self._data[self._i: colon])
+        colon = data.index(b":", i)
+        length = int(data[i:colon])
 
         start = colon + 1
         end = start + length
 
-        self._i = end
+        return data[start:end], end
 
-        return self._data[start:end]
-
-    def _decode_list(self) -> list[BDecodeType]:
+    def _decode_list(self, data: bytes, i: int) -> tuple[list[BDecodeType], int]:
         result = []
 
-        self._i += 1
+        i += 1
 
-        while self._data[self._i] != ord("e"):
-            result.append(self._get_decoder()())
+        while data[i] != ord("e"):
+            value, i = self._decode(data, i)
+            result.append(value)
 
-        self._i += 1
+        return result, i + 1
 
-        return result
+    def _decode_int(self, data: bytes, i: int) -> tuple[int, int]:
+        i += 1
 
-    def _decode_int(self) -> int:
-        self._i += 1
+        if data[i] == ord("-") and data[i + 1] == ord("0"):
+            raise DecodeError(f"Invalid '-0' value for int in {i} position")
+        if data[i] == ord("0") and data[i + 1] != ord("e"):
+            raise DecodeError(f"Invalid leading '0' value for int in {i} position")
 
-        if self._data[self._i] == ord("-") and self._data[self._i + 1] == ord("0"):
-            raise DecodeError(f"Invalid '-0' value for int in {self._i} position")
-        if self._data[self._i] == ord("0") and self._data[self._i + 1] != ord("e"):
-            raise DecodeError(f"Invalid leading '0' value for int in {self._i} position")
+        end = data.index(b"e", i)
 
-        start = self._i
-        end = self._data.index(b"e", self._i)
-
-        self._i = end + 1
-
-        return int(self._data[start:end])
+        return int(data[i:end]), end + 1
