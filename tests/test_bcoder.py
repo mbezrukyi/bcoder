@@ -36,6 +36,18 @@ MALFORMED = [
     b"i1ei2e",
 ]
 
+UNSUPPORTED = [
+    True,
+    "spam",
+    None,
+    1.5,
+    (1, 2),
+    [None],
+    {"spam": 1},
+    {1: 2},
+    {b"spam": None},
+]
+
 
 @pytest.mark.parametrize(("value", "encoded"), ENCODED_VALUES)
 def test_encode(value, encoded):
@@ -63,3 +75,9 @@ def test_decode_keeps_last_duplicate_dict_key():
 def test_decode_rejects_malformed_data(data):
     with pytest.raises(DecodeError):
         decode(data)
+
+
+@pytest.mark.parametrize("value", UNSUPPORTED)
+def test_encode_rejects_unsupported_values(value):
+    with pytest.raises(TypeError):
+        encode(value)

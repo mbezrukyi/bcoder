@@ -17,11 +17,16 @@ def encode(value: Value) -> bytes:
         case list():
             return b"l" + b"".join(map(encode, value)) + b"e"
         case dict():
+            if not all(isinstance(key, bytes) for key in value):
+                raise TypeError("dict keys must be bytes")
+
             pairs = (encode(key) + encode(item) for key, item in sorted(value.items()))
 
             return b"d" + b"".join(pairs) + b"e"
-        case int():
+        case int() if not isinstance(value, bool):
             return b"i%de" % value
+        case _:
+            raise TypeError(f"cannot encode {type(value).__name__}")
 
 
 def decode(data: bytes) -> Value:
