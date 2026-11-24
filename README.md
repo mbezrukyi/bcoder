@@ -1,50 +1,16 @@
 # bcoder
 
-### About
+Encode and decode [bencode](https://www.bittorrent.org/beps/bep_0003.html#bencoding), the format of `.torrent` files.
 
----
-
-A Python package to handle bencoded values, a serialization format commonly used in `.torrent` files within
-the <u>BitTorrent</u> protocol.
-
-### Usage
-
----
-
-There are __2__ types of classes:
-- `BDecoder` - handle decoding of bencoded data to common Python types
-- `BEncoder` - handle encoding of common Python types to `bytes` type
-
-Example of `BDecoder` usage:
-```python
-from bcoder import BDecoder
-
-decoder = BDecoder()
-
-with open("file.torrent", "rb") as file:
-    data = file.read()
-
-decoded = decoder.decode(data)
+```
+pip install bcoder
 ```
 
-Example of `BEncoder` usage:
 ```python
-from bcoder import BEncoder
+import bcoder
 
-encoder = BEncoder()
-
-data = {
-    b"announce-list": [
-        [b"udp:..."],
-        [b"udp:..."],
-    ],
-    b"info": {
-        b"piece": b"xfsasf",
-        b"piece length": 123,
-    },
-}
-
-encoded = encoder.encode(data)
+bcoder.encode({b"spam": [b"eggs", 42]})  # b"d4:spaml4:eggsi42eee"
+bcoder.decode(b"d4:spaml4:eggsi42eee")  # {b"spam": [b"eggs", 42]}
 ```
 
-__NOTE__: `BEncoder` is spec-strict (BEP 3). Only `bytes`, `int`, `list`, and `dict` with `bytes` keys are accepted. Pass `str` through `.encode("utf-8")` yourself if you need to encode text.
+Values are `int`, `bytes`, `list` and `dict` with `bytes` keys. `encode` raises `TypeError` for anything else. `decode` raises `bcoder.DecodeError` for malformed data.
