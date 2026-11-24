@@ -4,7 +4,7 @@ requires = [ "uv-build>=0.13.9,<0.14" ]
 
 [project]
 name = "bcoder"
-version = "2.0"
+version = "3.0"
 description = "Tool to decode and encode .torrent files"
 readme = "README.md"
 license = "MIT"
