@@ -18,6 +18,22 @@ MALFORMED = [
     b"i-0e",
     b"i01e",
     b"01:a",
+    b"",
+    b"x",
+    b"ie",
+    b"i-e",
+    b"i1",
+    b"i 1e",
+    b"i1_0e",
+    b"1:",
+    b"5:ab",
+    b"-1:a",
+    b"l",
+    b"li1e",
+    b"d",
+    b"d1:a",
+    b"di1e0:e",
+    b"i1ei2e",
 ]
 
 

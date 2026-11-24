@@ -1,3 +1,8 @@
+import re
+
+_INTEGER = re.compile(rb"i(0|-?[1-9][0-9]*)e")
+_STRING_LENGTH = re.compile(rb"(0|[1-9][0-9]*):")
+
 type Value = int | bytes | list[Value] | dict[bytes, Value]
 
 
@@ -20,7 +25,10 @@ def encode(value: Value) -> bytes:
 
 
 def decode(data: bytes) -> Value:
-    value, _ = _decode_value(data, 0)
+    value, end = _decode_value(data, 0)
+
+    if end != len(data):
+        raise DecodeError(f"trailing data at position {end}")
 
     return value
 
@@ -28,13 +36,12 @@ def decode(data: bytes) -> Value:
 def _decode_value(data: bytes, position: int) -> tuple[Value, int]:
     match data[position : position + 1]:
         case b"i":
-            end = data.index(b"e", position)
-            digits = data[position + 1 : end]
+            integer = _INTEGER.match(data, position)
 
-            if digits.startswith((b"-0", b"0")) and digits != b"0":
+            if not integer:
                 raise DecodeError(f"invalid integer at position {position}")
 
-            return int(digits), end + 1
+            return int(integer[1]), integer.end()
         case b"l":
             items = []
             position += 1
@@ -53,17 +60,21 @@ def _decode_value(data: bytes, position: int) -> tuple[Value, int]:
                 entries[key], position = _decode_value(data, position)
 
             return entries, position + 1
-        case _:
+        case digit if digit.isdigit():
             return _decode_string(data, position)
+        case _:
+            raise DecodeError(f"invalid value at position {position}")
 
 
 def _decode_string(data: bytes, position: int) -> tuple[bytes, int]:
-    colon = data.index(b":", position)
-    digits = data[position:colon]
+    length = _STRING_LENGTH.match(data, position)
 
-    if digits.startswith(b"0") and digits != b"0":
+    if not length:
         raise DecodeError(f"invalid string at position {position}")
 
-    end = colon + 1 + int(digits)
+    end = length.end() + int(length[1])
 
-    return data[colon + 1 : end], end
+    if end > len(data):
+        raise DecodeError(f"truncated string at position {position}")
+
+    return data[length.end() : end], end
